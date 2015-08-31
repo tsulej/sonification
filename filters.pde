@@ -7,7 +7,6 @@ public AFilter createFilter(int type, Piper previous, float srate) {
     case VYNIL: return new Vynil(previous, srate);
     case CANYONDELAY: return new CanyonDelay(previous, srate);
     case VCF303: return new Vcf303(previous, srate);
-    case AUPHAS: return new AuPhaser(previous, srate);
     default: return new Empty(previous, srate); 
   }
 }

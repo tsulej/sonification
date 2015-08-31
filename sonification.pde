@@ -37,9 +37,8 @@ int w_colorspace = RGB; // list below
 
 // put list of the filters { name, sample rate }
 float[][] filters = {
-//  { AUPHAS, 44100.0 },
   { DJEQ, 44100.0 },
-//  { VYNIL, 43100.0}
+  { VYNIL, 43100.0}
 };
 
 // EFFECTS!
@@ -48,8 +47,6 @@ final static int COMB = 1;
 final static int VYNIL = 2;
 final static int CANYONDELAY = 3; 
 final static int VCF303 = 4;
-final static int AUPHAS = 5;
-
 
 // configuration constants
 final static int A_LAW = 0;
