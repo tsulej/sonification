@@ -1,3 +1,4 @@
+/* the classes in this file all direct ports of audacity stuff, so GPL */
 public class AuPhaser extends AFilter {
   float gain, fbout, lfoskip, phase;
 
@@ -208,3 +209,151 @@ public class AuBassTreble extends AFilter {
   }
 }
 
+
+
+
+
+
+
+public class AuWahwah extends AFilter {
+  float mSampleRate, mDepth, mFreqOfs, mPhase, mRes, mFreq;
+  int skipcount;
+  float lfoskip, xn1, xn2, yn1, yn2, b0, b1, b2, a0, a1, a2, depth, freqofs, phase;
+  int lfoskipsamples = 30;
+  public AuWahwah(Piper reader, float srate) {
+    super(reader, srate);
+    mSampleRate = srate;
+    setDefaults();
+    initialize();
+  }
+
+  void setDefaults() { 
+    /*//     Name       Type     Key               Def      Min      Max      Scale
+     Param( Freq,      double,  XO("Freq"),       1.5,     0.1,     4.0,     10  );
+     Param( Phase,     double,  XO("Phase"),      0.0,     0.0,     359.0,   1   );
+     Param( Depth,     int,     XO("Depth"),      70,      0,       100,     1   ); // scaled to 0-1 before processing
+     Param( Res,       double,  XO("Resonance"),  2.5,     0.1,     10.0,    10  );
+     Param( FreqOfs,   int,     XO("Offset"),     30,      0,       100,     1   ); // scaled to 0-1 before processing */
+    mFreq = 0.01 + (2*random(1));
+    mPhase = random(1)*359;
+    mDepth = 80.1;//random(1);
+    mRes = map(mouseY,0,height,0.1,10);//0.1+(9.9*random(1));
+    mFreqOfs = map(mouseX,0,width,0,10);//random(1)*20;
+      depth = mDepth / 100.0;
+    freqofs = mFreqOfs / 100.0;
+
+    phase = mPhase * PI / 180.0;
+  }
+
+
+  public void randomize() {
+setDefaults();
+  }
+
+
+
+  public void initialize() {
+
+    lfoskip = mFreq * 2 * PI / mSampleRate;
+    println(mFreq +"* 2 * 3.14 /"+mSampleRate);
+    //  exit();
+    skipcount = 0;
+    xn1 = 0;
+    xn2 = 0;
+    yn1 = 0;
+    yn2 = 0;
+    b0 = 0;
+    b1 = 0;
+    b2 = 0;
+    a0 = 0;
+    a1 = 0;
+    a2 = 0;
+
+    depth = mDepth / 100.0;
+    freqofs = mFreqOfs / 100.0;
+
+    phase = mPhase * PI / 180.0;
+  }
+
+  public float read() {
+    float in = reader.read();
+    float out = in;
+    float frequency, omega, sn, cs, alpha;
+
+    if ((skipcount++) % lfoskipsamples == 0)
+    {
+      frequency = (1 + cos(skipcount * lfoskip + phase)) / 2;
+      frequency = frequency * depth * (1 - freqofs) + freqofs;
+      frequency = exp((frequency - 1) * 6);
+      omega = PI * frequency;
+      sn = sin(omega);
+      cs = cos(omega);
+      alpha = sn / (2 * mRes);
+      b0 = (1 - cs) / 2;
+      b1 = 1 - cs;
+      b2 = (1 - cs) / 2;
+      a0 = 1 + alpha;
+      a1 = -2 * cs;
+      a2 = 1 - alpha;
+    };
+    out = (b0 * in + b1 * xn1 + b2 * xn2 - a1 * yn1 - a2 * yn2) / a0;
+    xn2 = xn1;
+    xn1 = in;
+    yn2 = yn1;
+    yn1 = out;
+
+
+
+    //FIXME :p
+    return out;
+  }
+}
+
+
+
+public class Empty2 extends AFilter {
+
+  public Empty2(Piper reader, float srate) {
+    super(reader, srate);
+    initialize();
+  }
+
+  public void initialize() {
+  }
+  public void randomize() {
+    initialize();
+  }
+
+  public float read() {
+    float in = reader.read();
+    float out = in;
+    return out;
+  }
+}
+
+
+
+
+/*
+
+ // stub for mono
+ public class Empty extends AFilter {
+ 
+ public Empty(Piper reader, float srate) {
+ super(reader, srate);
+ initialize();
+ }
+ 
+ public void initialize() {}
+ public void randomize() {
+ initialize();
+ }
+ 
+ public float read() {
+ float in = reader.read();
+ float out = in;
+ return out;
+ }  
+ 
+ }
+ */
