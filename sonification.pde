@@ -14,7 +14,7 @@ String filename = "test";
 String fileext = ".jpg";
 String foldername = "./";
 
-int max_display_size = 700; // viewing window size (regardless image size)
+int max_display_size = 800; // viewing window size (regardless image size)
 
 boolean do_blend = false; // blend image after process
 int blend_mode = OVERLAY; // blend type
@@ -39,7 +39,7 @@ int w_colorspace = RGB; // list below
 float[][] filters = {
 //  { DJEQ, 44100.0 },
 //  { VYNIL, 43100.0},
-  { ECHO, 44100.0 }
+  { BASSTREBLE, 44100.0 }
 };
 
 // EFFECTS!
@@ -121,11 +121,14 @@ void setup() {
 void prepareFilters(float[][] f) {
   filterchain.clear();
   Piper p = isr;
+  println("Filters:");
   for(int i = 0; i<f.length;i++) {
     afilter = createFilter((int)f[i][0],p,f[i][1]);
+    println("-> " + afilter.getClass().getName());
     p = afilter;
     filterchain.add(afilter);
   }
+  println("");
 }
 
 void randomizeConfig() {
