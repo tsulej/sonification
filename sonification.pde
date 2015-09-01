@@ -8,6 +8,7 @@
 //   * click to randomize effect settings
 //   * f to randomize filters
 //   * r to randomize raw settings
+//   * c to random colorspace
 
 // set up filename
 String filename = "test";
@@ -67,9 +68,6 @@ final static int BIG_ENDIAN = 1;
 
 final static int PLANAR = 0;
 final static int INTERLEAVED = 1;
-
-// colorspaces, NONE: RGB
-final static int OHTA = 1001;
 
 // working buffer
 PGraphics buffer;
@@ -156,17 +154,19 @@ void randomizeRaw() {
   int sign = random(1)<0.5?SIGNED:UNSIGNED;
   int bits = random(1)<0.334?B8:random(1)<0.5?B16:B24;
   int endian = random(1)<0.5?BIG_ENDIAN:LITTLE_ENDIAN;
-  int cs = random(1)<0.5?RGB:OHTA;
+  w_colorspace = r_colorspace = (int)(1000+random(MAX_COLORSPACES+1));
+  println("r_colorspace = " + r_colorspace);
   isr = new RawReader(img.get(), rawtype, law, sign, bits, endian);
-  isr.r.convertColorspace(cs);
+  isr.r.convertColorspace(r_colorspace);
   if(!keepsame) {
     rawtype = random(1)<0.5?INTERLEAVED:PLANAR;
     law = random(1)<0.334?NONE:random(1)<0.5?A_LAW:U_LAW;
     sign = random(1)<0.5?SIGNED:UNSIGNED;
     bits = random(1)<0.334?B8:random(1)<0.5?B16:B24;
     endian = random(1)<0.5?BIG_ENDIAN:LITTLE_ENDIAN;
-    w_colorspace = random(1)<0.5?RGB:OHTA;
+    w_colorspace = (int)(1000+random(MAX_COLORSPACES+1));
   }
+  println("w_colorspace = " + w_colorspace);
   isw = new RawWriter(img.get(), rawtype, law, sign, bits, endian);
   prepareFilters(filters);
   resetStreams();
