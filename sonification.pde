@@ -8,7 +8,6 @@
 //   * click to randomize effect settings
 //   * f to randomize filters
 //   * r to randomize raw settings
-//   * c to random colorspace
 
 // set up filename
 String filename = "test";
@@ -19,6 +18,8 @@ int max_display_size = 800; // viewing window size (regardless image size)
 
 boolean do_blend = false; // blend image after process
 int blend_mode = OVERLAY; // blend type
+
+boolean make_equalize = true; // equalize and normalize histogram
 
 // image reader config
 int r_rawtype = PLANAR; // planar: rrrrr...ggggg....bbbbb; interleaved: rgbrgbrgb...
@@ -40,7 +41,7 @@ int w_colorspace = RGB; // list below
 float[][] filters = {
 //  { DJEQ, 44100.0 },
 //  { VYNIL, 43100.0},
-  { BASSTREBLE, 44100.0 }
+  { ECHO, 24100.0 }
 };
 
 // EFFECTS!
@@ -130,6 +131,7 @@ void prepareFilters(float[][] f) {
 }
 
 void randomizeConfig() {
+  make_equalize = random(1)<0.8;
   for(AFilter f : filterchain) f.randomize();
   resetStreams();
 }
@@ -185,7 +187,9 @@ void processImage() {
   // change result colorspace
   isw.w.convertColorspace(w_colorspace);
   // equalize and normalize histogram
-  equalize(isw.w.wimg.pixels);
+  if(make_equalize)
+    equalize(isw.w.wimg.pixels);
+    
   isw.w.wimg.updatePixels();
 
   buffer.image(isw.w.wimg, 0, 0);
