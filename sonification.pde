@@ -38,8 +38,11 @@ int w_colorspace = RGB; // list below
 // put list of the filters { name, sample rate }
 float[][] filters = {
 //  { DJEQ, 44100.0 },
+ { ECHO, 1000.0 },
 //  { VYNIL, 43100.0},
-  { ECHO, 44100.0 }
+  { BASSTREBLE, 24100.0 },
+ { ECHO, 12000.0 },
+ { COMB, 24410.0 }, 
 };
 
 // EFFECTS!
