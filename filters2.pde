@@ -309,6 +309,40 @@ setDefaults();
   }
 }
 
+public class TShiftR extends AFilter {
+  public int mPasses = 3;
+  public float mDiv = 1.0;
+  public float _prev = 0.0;
+
+  public TShiftR(Piper reader, float srate) {
+    super(reader, srate);
+    initialize();
+  }
+
+  public void initialize() {
+    _prev = 0.0;
+    mPasses = 5;
+    mDiv = 1;
+  }
+  public void randomize() {
+    _prev = 0.0;
+     mPasses = 1+(int)(random(1) * 10.0);
+     mDiv = 0.01+random(2);
+     println("mPasses set to "+mPasses+", divider modifier set to "+mDiv);
+  }
+
+  public float read() {
+    float in = reader.read();
+    float out = in;
+    for ( int i = 0; i< mPasses; i++ ) { 
+    out = sqrt((out + _prev) / ( in * mDiv ) );
+    _prev = in;
+    }
+    return out;
+  }
+}
+
+
 
 
 public class Empty2 extends AFilter {

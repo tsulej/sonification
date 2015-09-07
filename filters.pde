@@ -11,6 +11,7 @@ public AFilter createFilter(int type, Piper previous, float srate) { //FIXME: ma
     case PHASER: return new AuPhaser(previous, srate);
     case WAHWAH: return new AuWahwah(previous, srate);
     case BASSTREBLE: return new AuBassTreble(previous, srate);
+    case SHIFTR: return new TShiftR(previous, srate);
     default: return new Empty(previous, srate); 
   }
 }
