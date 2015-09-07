@@ -1,7 +1,15 @@
+
+// # of colorspaces
+final static int MAX_COLORSPACES = 2;
+// colorspaces, NONE: RGB
+final static int OHTA = 1001;
+final static int CMY = 1002;
+
 // colorspace converters
 color fromColorspace(color c, int cs) {
   switch(cs) {
-    case OHTA: return fromOHTA(c); 
+    case OHTA: return fromOHTA(c);
+    case CMY: return fromCMY(c); 
     default: return c;     
   }
 }
@@ -9,17 +17,26 @@ color fromColorspace(color c, int cs) {
 color toColorspace(color c, int cs) {
   switch(cs) {
     case OHTA: return toOHTA(c); 
+    case CMY: return toCMY(c);
     default: return c;     
   }
 }
 
 
-int getR(color c) { return (c & 0xff0000) >> 16; }
-int getG(color c) { return (c & 0xff00) >> 8; }
-int getB(color c) { return c & 0xff; }
+final int getR(color c) { return (c & 0xff0000) >> 16; }
+final int getG(color c) { return (c & 0xff00) >> 8; }
+final int getB(color c) { return c & 0xff; }
 
 color blendRGB(color c, int r, int g, int b) {
   return (c & 0xff000000) | ( constrain(r,0,255) << 16) | ( constrain(g,0,255) << 8 ) | (constrain(b,0,255));
+}
+
+color toCMY(color c) {
+  return blendRGB(c, 255-getR(c), 255-getG(c), 255-getB(c));
+}
+
+color fromCMY(color c) {
+  return toCMY(c);
 }
 
 color fromOHTA(color c) {

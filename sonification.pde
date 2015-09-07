@@ -14,10 +14,12 @@ String filename = "test";
 String fileext = ".jpg";
 String foldername = "./";
 
-int max_display_size = 700; // viewing window size (regardless image size)
+int max_display_size = 800; // viewing window size (regardless image size)
 
 boolean do_blend = false; // blend image after process
 int blend_mode = OVERLAY; // blend type
+
+boolean make_equalize = true; // equalize and normalize histogram
 
 // image reader config
 int r_rawtype = PLANAR; // planar: rrrrr...ggggg....bbbbb; interleaved: rgbrgbrgb...
@@ -40,10 +42,14 @@ float[][] filters = {
 //  { DJEQ, 44100.0 },
 // { ECHO, 31000.0 },
 //  { VYNIL, 43100.0},
+<<<<<<< HEAD
 //  { BASSTREBLE, 24100.0 },
 // { ECHO, 12000.0 },
 // { COMB, 24410.0 }, 
  {SHIFTR, 44100.0 }
+=======
+  { ECHO, 24100.0 }
+>>>>>>> tsulej/master
 };
 
 // EFFECTS!
@@ -75,9 +81,6 @@ final static int BIG_ENDIAN = 1;
 
 final static int PLANAR = 0;
 final static int INTERLEAVED = 1;
-
-// colorspaces, NONE: RGB
-final static int OHTA = 1001;
 
 // working buffer
 PGraphics buffer;
@@ -129,14 +132,18 @@ void setup() {
 void prepareFilters(float[][] f) {
   filterchain.clear();
   Piper p = isr;
+  println("Filters:");
   for(int i = 0; i<f.length;i++) {
     afilter = createFilter((int)f[i][0],p,f[i][1]);
+    println("-> " + afilter.getClass().getName());
     p = afilter;
     filterchain.add(afilter);
   }
+  println("");
 }
 
 void randomizeConfig() {
+  make_equalize = random(1)<0.8;
   for(AFilter f : filterchain) f.randomize();
   resetStreams();
 }
@@ -161,17 +168,19 @@ void randomizeRaw() {
   int sign = random(1)<0.5?SIGNED:UNSIGNED;
   int bits = random(1)<0.334?B8:random(1)<0.5?B16:B24;
   int endian = random(1)<0.5?BIG_ENDIAN:LITTLE_ENDIAN;
-  int cs = random(1)<0.5?RGB:OHTA;
+  w_colorspace = r_colorspace = (int)(1000+random(MAX_COLORSPACES+1));
+  println("r_colorspace = " + r_colorspace);
   isr = new RawReader(img.get(), rawtype, law, sign, bits, endian);
-  isr.r.convertColorspace(cs);
+  isr.r.convertColorspace(r_colorspace);
   if(!keepsame) {
     rawtype = random(1)<0.5?INTERLEAVED:PLANAR;
     law = random(1)<0.334?NONE:random(1)<0.5?A_LAW:U_LAW;
     sign = random(1)<0.5?SIGNED:UNSIGNED;
     bits = random(1)<0.334?B8:random(1)<0.5?B16:B24;
     endian = random(1)<0.5?BIG_ENDIAN:LITTLE_ENDIAN;
-    w_colorspace = random(1)<0.5?RGB:OHTA;
+    w_colorspace = (int)(1000+random(MAX_COLORSPACES+1));
   }
+  println("w_colorspace = " + w_colorspace);
   isw = new RawWriter(img.get(), rawtype, law, sign, bits, endian);
   prepareFilters(filters);
   resetStreams();
@@ -190,7 +199,9 @@ void processImage() {
   // change result colorspace
   isw.w.convertColorspace(w_colorspace);
   // equalize and normalize histogram
-  equalize(isw.w.wimg.pixels);
+  if(make_equalize)
+    equalize(isw.w.wimg.pixels);
+    
   isw.w.wimg.updatePixels();
 
   buffer.image(isw.w.wimg, 0, 0);
